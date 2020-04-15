@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '../../services/api';
 
@@ -20,23 +20,30 @@ import {
 export default function Main() {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = useCallback(() => {
-    if (!newUser) return;
-
     async function loadUser() {
-      const response = await api.get(`/users/${newUser.trim()}`);
+      setLoading(true);
 
-      const user = {
-        name: response.data.name,
-        login: response.data.login,
-        bio: response.data.bio,
-        avatar: response.data.avatar_url,
-      };
+      try {
+        const response = await api.get(`/users/${newUser.trim()}`);
 
-      setUsers([...users, user]);
-      setNewUser('');
-      Keyboard.dismiss();
+        const user = {
+          name: response.data.name,
+          login: response.data.login,
+          bio: response.data.bio,
+          avatar: response.data.avatar_url,
+        };
+
+        setUsers([...users, user]);
+        setNewUser('');
+        Keyboard.dismiss();
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     loadUser();
@@ -55,8 +62,12 @@ export default function Main() {
           onSubmitEditing={handleSubmit}
         />
 
-        <SubmitButton onPress={handleSubmit}>
-          <Icon name="add" size={20} color="#FFF" />
+        <SubmitButton onPress={handleSubmit} loading={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Icon name="add" size={20} color="#FFF" />
+          )}
         </SubmitButton>
       </Form>
 
