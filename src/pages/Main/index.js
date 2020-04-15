@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Keyboard, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-community/async-storage';
 import api from '../../services/api';
 
 import {
@@ -22,7 +23,31 @@ export default function Main() {
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    async function loadUsers() {
+      const storageUsers = await AsyncStorage.getItem('users');
+
+      if (!storageUsers) return;
+
+      setUsers(JSON.parse(storageUsers));
+    }
+
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem('users', JSON.stringify(users));
+  }, [users]);
+
   const handleSubmit = useCallback(() => {
+    if (!newUser) return;
+
+    if (users.find(user => user.login === newUser)) {
+      alert('Usuário já adicionado');
+      setNewUser('');
+      return;
+    }
+
     async function loadUser() {
       setLoading(true);
 
@@ -30,6 +55,7 @@ export default function Main() {
         const response = await api.get(`/users/${newUser.trim()}`);
 
         const user = {
+          id: response.data.id,
           name: response.data.name,
           login: response.data.login,
           bio: response.data.bio,
@@ -47,7 +73,7 @@ export default function Main() {
     }
 
     loadUser();
-  }, []);
+  }, [newUser]);
 
   return (
     <Container>
@@ -73,7 +99,7 @@ export default function Main() {
 
       <List
         data={users}
-        keyExtractor={user => user.login}
+        keyExtractor={user => String(user.id)}
         renderItem={({ item }) => (
           <User>
             <Avatar source={{ uri: item.avatar }} />
