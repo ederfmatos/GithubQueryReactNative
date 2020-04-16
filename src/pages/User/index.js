@@ -37,7 +37,7 @@ function User({ navigation }) {
     <Container>
       <Header>
         <Avatar source={{ uri: user.avatar }} />
-        <Name>{user.name}</Name>
+        <Name>{user.name || user.login}</Name>
         <Bio>{user.bio}</Bio>
       </Header>
 
