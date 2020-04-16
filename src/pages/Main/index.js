@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Keyboard, ActivityIndicator } from 'react-native';
+import { Keyboard, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-community/async-storage';
 import api from '../../services/api';
@@ -43,7 +43,7 @@ export default function Main() {
     if (!newUser) return;
 
     if (users.find(user => user.login === newUser)) {
-      alert('Usuário já adicionado');
+      Alert.alert('Ação impossibilitada', 'Usuário já adicionado');
       setNewUser('');
       return;
     }
@@ -66,7 +66,7 @@ export default function Main() {
         setNewUser('');
         Keyboard.dismiss();
       } catch (error) {
-        alert(error);
+        Alert.alert('Erro', error);
       } finally {
         setLoading(false);
       }
