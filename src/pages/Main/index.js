@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Keyboard, ActivityIndicator, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-community/async-storage';
+
 import api from '../../services/api';
 
 import {
@@ -18,7 +19,7 @@ import {
   ProfileButtonText,
 } from './styles';
 
-export default function Main() {
+export default function Main({ navigation }) {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState('');
   const [loading, setLoading] = useState(false);
@@ -75,6 +76,10 @@ export default function Main() {
     loadUser();
   }, [newUser]);
 
+  const handleNavigate = useCallback(user => {
+    navigation.navigate('User', { user });
+  }, []);
+
   return (
     <Container>
       <Form>
@@ -106,7 +111,7 @@ export default function Main() {
             <Name>{item.name}</Name>
             <Bio>{item.bio}</Bio>
 
-            <ProfileButton onPress={() => {}}>
+            <ProfileButton onPress={() => handleNavigate(item)}>
               <ProfileButtonText>Ver perfil</ProfileButtonText>
             </ProfileButton>
           </User>
@@ -115,7 +120,3 @@ export default function Main() {
     </Container>
   );
 }
-
-Main.navigationOptions = {
-  title: 'Usuários',
-};
