@@ -1,10 +1,35 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text } from 'react-native';
+import api from '../../services/api';
 
 // import { Container } from './styles';
 
-export default function User({ navigation }) {
-  const user = navigation.getParam('user');
+function User({ navigation }) {
+  const [repositories, setRepositories] = useState([]);
 
-  return <View />;
+  useEffect(() => {
+    async function loadRepositories() {
+      const user = navigation.getParam('user');
+
+      const response = await api.get(`/users/${user.login}/repos`);
+
+      setRepositories(response.data);
+    }
+
+    loadRepositories();
+  });
+
+  return (
+    <View>
+      {repositories.map(item => (
+        <Text key={item.id}>{item.name}</Text>
+      ))}
+    </View>
+  );
 }
+
+User.navigationOptions = ({ navigation }) => ({
+  title: navigation.getParam('user').name,
+});
+
+export default User;
